@@ -1,0 +1,108 @@
+﻿
+@using DataAccessLibrary.Models
+@using DataAccessLibrary
+
+
+@inject IRecipeData Data
+@inject RecipeState State
+@inject IJSRuntime JsRuntime
+@page "/AdminRecipe"
+
+<div @onkeypress="CheckEscape">
+    <PageTitle>@title</PageTitle>
+    <h3>Recipe Management</h3>
+    <button onclick="@(() => State.ShowCreateDialog(createRecipe))"
+            class="btn btn-primary">Create a new Recipe</Button>
+
+
+
+
+    @if (State.RecipeList == null)
+    {
+        <p>Loading ... </p>
+    }
+    else
+    {
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Calorie</th>
+                <th>Image</th>
+                <th>Tags</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in State.RecipeList)
+            {
+                <tr>
+                    <th>@item.Name</th>
+                    <th>@item.Calorie</th>
+                    <th>@item.Image</th>
+
+
+                    <th >
+
+                        @if (item.TagList != null && item.TagList.Any())
+                        {
+                            <ul class="">
+
+                                @foreach (var tag in item.TagList)
+                                {
+                                    if (tag != null)
+                                    {
+                                        <li class="">@tag.Tag</li>
+                                    }
+
+
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p> no tags </p>
+                        }
+                    </th>
+
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+</div>
+
+
+<TemplatedDialog Show="State.ShowDialog">
+    <CreateRecipeDialog
+        Recipe="State.NewRecipe"
+        OnCancel="State.RemoveDialog"
+        OnConfirm="State.ConfirmRecipe"/>
+
+</TemplatedDialog>
+
+@code {
+
+    private string title = "Recipe Management";
+    private CreateRecipe createRecipe { get; set; } = new CreateRecipe();
+    bool show = false;
+    protected override async Task OnInitializedAsync()
+    {
+        State.RecipeList = await Data.GetRecipeList();
+
+       base.OnInitializedAsync();
+
+    }
+
+    //protected override async Task OnAfterRenderAsync(bool firstRender)
+    //{
+    //    await JsRuntime.InvokeVoidAsync("setTitle", "Recipe Management");
+    //}
+
+    private void CheckEscape(KeyboardEventArgs args)
+       {
+           Console.WriteLine(args.Key);
+           Console.WriteLine(args.Code);
+       }
+
+    
+   }

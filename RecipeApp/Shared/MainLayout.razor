@@ -1,0 +1,22 @@
+﻿@using Blazored.Toast.Configuration
+@inherits LayoutComponentBase
+
+<PageTitle>RecipeApp</PageTitle>
+
+<div class="page">
+    <BlazoredToasts Position="ToastPosition.BottomRight" Timeout="3"/>
+    <div class="sidebar">
+        <NavMenu/>
+    </div>
+
+    <main>
+        <div class="top-row px-4">
+            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+

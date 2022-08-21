@@ -1,0 +1,127 @@
+﻿@page "/AdminRecipe/CreateRecipe"
+@using DataAccessLibrary
+@using DataAccessLibrary.Models
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject IToastService Toast
+@inject RecipeState State
+@inject IRecipeData Data
+@inject ProtectedLocalStorage ProtectedLocalStore
+
+
+<div  class="m-4">
+<EditForm Model="@Recipe" OnValidSubmit="OnConfirm" OnInvalidSubmit="@(() => { })"> 
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+    <div class="d-flex flex-column">
+        <div class="d-flex flex-column mt-2">
+            <label>Name</label>
+            <InputText id="name" @bind-Value="Recipe.Name"  placeholder="Name of your recipe"/>
+        </div >
+        <div class="d-flex flex-column mt-2">
+            <label>Ingredient</label>
+            <InputTextArea id="ingredient" @bind-Value="Recipe.Ingredient" placeholder="Ingredients of your recipe"></InputTextArea>
+        </div>
+        <div class="d-flex flex-column mt-2">
+            <label>Calorie</label>
+            <input type="number" id="calorie" @bind="Recipe.Calorie" placeholder="How much calorie does it have?"/>
+        </div>
+        
+        <div class="d-flex flex-column mt-2">
+            <label>Image</label>
+            <InputText id="image" @bind-Value="Recipe.Image" placeholder="Add an image link"/>
+        </div>
+        
+        <div class="d-flex flex-column mt-2">
+            @if (Tags != null && Tags.Any())
+            {
+                <div id="wrapper" class="d-flex">
+                    @foreach (var tag in Tags)
+                    {
+                        <div id="tag" class="d-flex my-2">
+                            <span class="badge bg-secondary text-center">@tag</span>
+                            <div class="btn-close btn-sm mx-2 align-self-center" @onclick="@(()=>DeleteTag(tag))"></div>
+                        </div>
+                    }
+                </div>
+            }
+            <label>Tags</label>
+            @if (tagValidation)
+            {
+                <span class="text-danger">
+                    You cannot add duplicate tags
+                </span>
+            }
+            <div class="d-flex flex-row">
+                <input id="@($"{Id}_tag")"
+                        
+                       placeholder="Add your tags here"
+                       autocomplete="off"
+                       @bind-value="TagValue"
+                       @onkeyup="ClearValidation"
+                />
+                <button type="button" class="oi oi-plus p-2 btn btn-primary" onclick="@AddTags"></Button>
+            </div>
+           
+
+        </div>
+        
+    </div>
+    
+
+    <div class="float-end mt-4">
+        <button type="button" class="btn btn-secondary mr-auto" @onclick="OnCancel">Cancel</button>
+        <button type="submit"class="btn btn-primary" >Submit</button>
+    </div>
+    
+    
+</EditForm>
+</div>
+
+@code {
+    [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public EventCallback OnConfirm { get; set; }
+    [Parameter] public CreateRecipe Recipe { get; set; }
+
+    private List<string> Tags { get; set; } = new List<string>();
+    private string TagValue { get; set; }
+    bool tagValidation = false;
+
+    private Guid Id => Guid.NewGuid();
+
+    private void AddTags()
+    {
+
+        if (string.IsNullOrEmpty(TagValue)) return;
+        if (Tags.Any(x => x.ToLower() == TagValue.ToLower()))
+        {
+            tagValidation = true;
+            return;
+        }
+        Tags.Add(TagValue);
+        State.NewRecipe.TagList.Add(new Tags
+        {
+            TagId = Id,
+            Tag = TagValue
+        });
+        tagValidation = false;
+        TagValue = string.Empty;
+    }
+
+    private void DeleteTag(string value)
+    {
+        tagValidation = false;
+        if (string.IsNullOrEmpty(value)) return;
+        var tag = Tags.FirstOrDefault(t => t == value);
+        if (tag == null) return;
+        
+        State.RemoveTag(value);
+        Tags.Remove(tag);
+        
+    }
+
+    private void ClearValidation()
+    {
+        tagValidation = false;
+    }
+
+}
