@@ -1,0 +1,29 @@
+﻿@using DataAccessLibrary.Models
+@using DataAccessLibrary
+@inject IRecipeData Data
+
+
+<a class="card text-decoration-none px-2 py-2 mx-2 my-2" style="width: 18rem;" href="/RecipeDetail/@Recipe.Id">
+    <img class="card-body-image" src="@Recipe.Image" alt="@Recipe.Image" width="100%" heigth="30%">
+    <div class="card-body">
+        <p class="card-text text-black">
+            <strong>@Recipe.Name</strong>
+        </p>
+        <p class="card-text text-black">Total Calorie: <strong>@Recipe.Calorie</strong></p>
+    </div>
+</a>
+
+@code {
+    
+    //[Parameter] public RenderFragment<TItem> Item { get; set; }
+    //[Parameter] public Func<Task<IEnumerable<TItem>>> Loader { get; set; }
+    [Parameter] public RecipeModel Recipe { get; set; }
+    [Parameter] public string ClassGroup { get; set; }
+
+    //protected override async Task OnParametersSetAsync()
+    //{
+    //    items = await Loader();
+    //}
+   
+
+}

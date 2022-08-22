@@ -30,4 +30,12 @@ public class RecipeData : IRecipeData
         _dataAccess.SaveData(sql, model);
         return Task.CompletedTask;
     }
+
+    public async Task<RecipeModel?> GetRecipe(Guid id)
+    {
+        return await 
+            _dataAccess.LoadSingleRecipe("dbo.Recipe_GetRow"
+                , new { id });
+       
+    }
 }

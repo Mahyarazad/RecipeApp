@@ -1,0 +1,71 @@
+﻿@using DataAccessLibrary
+@using DataAccessLibrary.Models
+@using Majorsoft.Blazor.Components.Loading
+@using System.Runtime.CompilerServices
+
+@inject IRecipeData Data
+@inject RecipeState State
+
+<div class="d-flex flex-column">
+
+
+    <input class="w-25 px-2 py-2 mx-2 my-2"
+            @bind-value="SearchString"
+           @bind-value:event="onchange"
+           @oninput="Search"
+           placeholder="Search Everything ..."/>
+
+
+    @if (RecipeList == null)
+    {
+        <p> Loading ... </p>
+    }
+    else
+    {
+        <div class="d-flex">
+            @if (RecipeList.Count == 0)
+            {
+                <p> Nothing found ... </p>
+            }
+            else
+            {
+                @foreach (var recipe in RecipeList)
+                {
+                    <RecipeCard Recipe="@recipe" ClassGroup="d-flex"/>
+                }
+            }
+
+        </div>
+    }
+</div>
+
+@code {
+
+    private List<RecipeModel> RecipeList { get; set; } = null;
+    private string SearchString { get; set; } = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        RecipeList = await Data.GetRecipeList();
+        base.OnInitializedAsync();
+    }
+
+
+    private async Task Search(ChangeEventArgs args)
+    {
+        if (string.IsNullOrWhiteSpace(args.Value!.ToString()))
+        {
+            RecipeList = await Data.GetRecipeList();
+        }
+        else
+        {
+            var target = args.Value!.ToString()!.ToLower();
+            RecipeList = RecipeList.Where(recipe =>
+                recipe.Name.ToLower().Contains(target) ||
+                recipe.Ingredient.ToLower().Contains(target) ||
+                recipe.TagList.Any(tag => tag.Tag.ToLower().Contains(target))
+                ).ToList();
+        }
+    }
+
+}

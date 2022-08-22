@@ -69,6 +69,7 @@
     <Build Include="dbo\Tables\Tags.sql" />
     <Build Include="dbo\Types\BasicUDT.sql" />
     <Build Include="dbo\Stored Procedure\Recipe_InsertSet.sql" />
+    <Build Include="dbo\Stored Procedure\Recipe_GetRow.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="PublishProfile\Recipe.Publish.xml" />

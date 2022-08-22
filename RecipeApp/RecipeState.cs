@@ -9,7 +9,7 @@ public class RecipeState
     private readonly IRecipeData _recipeData;
     private readonly IToastService _toastService;
 
-
+    
     public RecipeState(IRecipeData recipeData, IToastService toastService)
     {
         _recipeData = recipeData;
@@ -19,8 +19,7 @@ public class RecipeState
     public bool ShowDialog { get; private set; }
     public CreateRecipe NewRecipe { get; private set; } = null!;
     public List<RecipeModel> RecipeList { get; set; } = null!;
-
-
+    public string SearchString { get; set; }
 
     public void ShowCreateDialog(CreateRecipe command)
     {
@@ -32,7 +31,6 @@ public class RecipeState
         ShowDialog = false;
        
     }
-
     public void ConfirmRecipe()
     {
 
@@ -67,5 +65,7 @@ public class RecipeState
     {
         var target = NewRecipe.TagList!.FirstOrDefault(x => x.Tag == value);
         NewRecipe.TagList!.Remove(target!);
-     }
+    }
+
+   
 }

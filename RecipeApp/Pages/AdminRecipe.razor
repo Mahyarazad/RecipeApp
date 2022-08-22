@@ -1,7 +1,6 @@
-﻿
-@using DataAccessLibrary.Models
+﻿@using DataAccessLibrary.Models
 @using DataAccessLibrary
-
+@using Majorsoft.Blazor.Components.Loading
 
 @inject IRecipeData Data
 @inject RecipeState State
@@ -14,12 +13,13 @@
     <button onclick="@(() => State.ShowCreateDialog(createRecipe))"
             class="btn btn-primary">Create a new Recipe</Button>
 
-
-
-
     @if (State.RecipeList == null)
-    {
-        <p>Loading ... </p>
+        {<LoadingPage OnLoading="@LoadPageData">
+            <LoadingContent>
+                <i class="fa fa-spinner fa-3x fa-spin"></i> 
+                <h2 class="m-3">Loading...</h2>
+            </LoadingContent>
+         </LoadingPage>
     }
     else
     {
@@ -38,7 +38,7 @@
                 <tr>
                     <th>@item.Name</th>
                     <th>@item.Calorie</th>
-                    <th>@item.Image</th>
+                    <th><img src="@item.Image" alt="@item.Name" width="200"/></th>
 
 
                     <th >
@@ -84,13 +84,11 @@
 
     private string title = "Recipe Management";
     private CreateRecipe createRecipe { get; set; } = new CreateRecipe();
-    bool show = false;
+
     protected override async Task OnInitializedAsync()
     {
         State.RecipeList = await Data.GetRecipeList();
-
-       base.OnInitializedAsync();
-
+        base.OnInitializedAsync();
     }
 
     //protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -103,6 +101,8 @@
            Console.WriteLine(args.Key);
            Console.WriteLine(args.Code);
        }
-
-    
+    private async Task LoadPageData()
+    {
+        await Task.Delay(1500); //write your code here... Component uses Try/Finally internally.
+    }
    }

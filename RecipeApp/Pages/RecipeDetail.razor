@@ -1,0 +1,57 @@
+﻿@page "/RecipeDetail/{recipeId:guid}"
+@using DataAccessLibrary.Models
+@using DataAccessLibrary
+
+@inject RecipeState State
+@inject IRecipeData Data
+
+<div class="d-flex flex-column">
+   
+    <div class="d-flex justify-content-between">
+
+        <div class="w-25 px-2 py-2">
+            <h3>@Recipe.Name</h3>
+            <img src="@Recipe.Image" alt="@Recipe.Name" width="100%" />
+        </div>
+
+        <div class="w-75 position-topcenter px-2 py-2">
+            <div class="d-flex flex-column pb-2">
+                <h4>Ingredients:</h4>
+                @Recipe.Ingredient
+            </div>
+
+            <div class="d-flex flex-column pb-2">
+                <h4 >Calorie:</h4>
+                <span >@Recipe.Calorie</span>
+            </div>
+
+            <div class="d-flex flex-column">
+                <h4> Tags:</h4>
+                <div class="d-flex justify-content-start">
+
+                    @foreach (var tag in Recipe.TagList)
+                    {
+                        <span class="btn-secondary btn mx-2"> @tag.Tag</span>
+                    }
+                </div>
+            </div>
+        </div>
+        
+    </div>
+   
+</div>
+<a class="btn-secondary btn float-end" href="/">Back</a>
+@code {
+
+    [Parameter]
+    public Guid recipeId { get; set; }
+
+    public RecipeModel Recipe { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Recipe = await Data.GetRecipe(recipeId);
+        base.OnInitializedAsync();
+    }
+
+}
