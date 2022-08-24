@@ -1,35 +1,35 @@
-﻿@using DataAccessLibrary.Models
+﻿
 @using DataAccessLibrary
-@using Majorsoft.Blazor.Components.Loading
+
 
 @inject IRecipeData Data
 @inject RecipeState State
 @inject IJSRuntime JsRuntime
 @page "/AdminRecipe"
 
-<div @onkeypress="CheckEscape">
+
     <PageTitle>@title</PageTitle>
     <h3>Recipe Management</h3>
-    <button onclick="@(() => State.ShowCreateDialog(createRecipe))"
-            class="btn btn-primary">Create a new Recipe</Button>
+    <button @onclick="() => State.ShowCreateDialog(Guid.Empty)"
+            class="btn btn-primary">
+        Create a new Recipe
+    </button>
 
     @if (State.RecipeList == null)
-        {<LoadingPage OnLoading="@LoadPageData">
-            <LoadingContent>
-                <i class="fa fa-spinner fa-3x fa-spin"></i> 
-                <h2 class="m-3">Loading...</h2>
-            </LoadingContent>
-         </LoadingPage>
+    {
+        <text>Loading...</text>
     }
     else
     {
-        <table class="table table-striped">
+        <div class="table-responsive-sm">
+        <table class="table table-striped ">
             <thead>
             <tr>
                 <th>Name</th>
                 <th>Calorie</th>
                 <th>Image</th>
                 <th>Tags</th>
+                <th>Actions</th>
             </tr>
             </thead>
             <tbody>
@@ -38,23 +38,20 @@
                 <tr>
                     <th>@item.Name</th>
                     <th>@item.Calorie</th>
-                    <th><img src="@item.Image" alt="@item.Name" width="200"/></th>
-
+                    <th>
+                        <img src="@item.Image" alt="@item.Name" width="200"/>
+                    </th>
 
                     <th >
-
                         @if (item.TagList != null && item.TagList.Any())
                         {
                             <ul class="">
-
                                 @foreach (var tag in item.TagList)
                                 {
                                     if (tag != null)
                                     {
                                         <li class="">@tag.Tag</li>
                                     }
-
-
                                 }
                             </ul>
                         }
@@ -63,16 +60,22 @@
                             <p> no tags </p>
                         }
                     </th>
-
+                    <th>
+                        <button @onclick="() => State.ShowCreateDialog(item.Id)"
+                                class="btn btn-primary">
+                            Edit
+                        </button>
+                        <button class="btn btn-danger">Delete</button>
+                    </th>
                 </tr>
             }
             </tbody>
         </table>
+        </div>
     }
-</div>
 
+<TemplatedDialog Show="@State.ShowDialogCreate">
 
-<TemplatedDialog Show="State.ShowDialog">
     <CreateRecipeDialog
         Recipe="State.NewRecipe"
         OnCancel="State.RemoveDialog"
@@ -80,29 +83,16 @@
 
 </TemplatedDialog>
 
+
+
+
 @code {
 
     private string title = "Recipe Management";
-    private CreateRecipe createRecipe { get; set; } = new CreateRecipe();
-
+    
     protected override async Task OnInitializedAsync()
     {
         State.RecipeList = await Data.GetRecipeList();
-        base.OnInitializedAsync();
+        await base.OnInitializedAsync();
     }
-
-    //protected override async Task OnAfterRenderAsync(bool firstRender)
-    //{
-    //    await JsRuntime.InvokeVoidAsync("setTitle", "Recipe Management");
-    //}
-
-    private void CheckEscape(KeyboardEventArgs args)
-       {
-           Console.WriteLine(args.Key);
-           Console.WriteLine(args.Code);
-       }
-    private async Task LoadPageData()
-    {
-        await Task.Delay(1500); //write your code here... Component uses Try/Finally internally.
-    }
-   }
+}

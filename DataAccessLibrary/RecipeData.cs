@@ -22,13 +22,12 @@ public class RecipeData : IRecipeData
 
     }
 
-    public Task InsertRecipe(RecipeModel model)
+    public Task<bool> InsertRecipe(RecipeModel model)
     {
         const string sql = @"insert into dbo.Recipe (Id,Name, Calorie, Image, Ingredient)
                                 values(@Id,@Name, @Calorie, @Image, @Ingredient);";
-        //return  _dataAccess.SaveData(sql, model);
-        _dataAccess.SaveData(sql, model);
-        return Task.CompletedTask;
+        return Task.FromResult(_dataAccess.SaveData(sql, model));
+       
     }
 
     public async Task<RecipeModel?> GetRecipe(Guid id)
@@ -37,5 +36,12 @@ public class RecipeData : IRecipeData
             _dataAccess.LoadSingleRecipe("dbo.Recipe_GetRow"
                 , new { id });
        
+    }
+
+    public Task DeleteTag(Guid Id)
+    {
+       
+        _dataAccess.DeleteData(@"delete from dbo.Tags where TagId = @Id", new {Id});
+        return Task.CompletedTask;
     }
 }

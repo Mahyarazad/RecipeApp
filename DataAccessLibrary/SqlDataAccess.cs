@@ -1,6 +1,5 @@
 ﻿using System.Data;
 using System.Data.SqlClient;
-using System.Diagnostics;
 using Dapper;
 using DataAccessLibrary.Models;
 using Microsoft.Extensions.Configuration;
@@ -34,15 +33,23 @@ public class SqlDataAccess : ISqlDataAccess
                     param:parameter,
                     commandType: CommandType.StoredProcedure);
 
-
-            var result = data.GroupBy(p => p.Id).Select(g =>
+            if (data.Count() == 0)
             {
-                var groupedRecipe = g.First();
-                groupedRecipe.TagList = g.Select(p => p.TagList.Single()).ToList();
-                return groupedRecipe;
-            });
+                var result =
+                    connection.Query<RecipeModel>(sql: @"select * from Recipe where Id = @Id", parameter);
+                return result.FirstOrDefault();
+            }
+            else
+            {
+                var result = data.GroupBy(p => p.Id).Select(g =>
+                {
+                    var groupedRecipe = g.First();
+                    groupedRecipe.TagList = g.Select(p => p.TagList.Single()).ToList();
+                    return groupedRecipe;
+                });
 
-            return result.FirstOrDefault() ?? throw new InvalidOperationException();
+                return result.FirstOrDefault();
+            }
         }
     }
 
@@ -68,11 +75,22 @@ public class SqlDataAccess : ISqlDataAccess
         }
     }
 
-    public void SaveData(string sql, RecipeModel parameter)
+    public bool SaveData(string sql, RecipeModel parameter)
     {
         var connectionString = _configuration.GetConnectionString(ConnectionString);
+
+        
+
         using (IDbConnection connection = new SqlConnection(connectionString))
         {
+            if (connection
+                .ExecuteScalar<bool>(@"select count(1) from dbo.Recipe where Name=@name",
+                    new { parameter.Name }))
+            {
+                return false;
+            }
+                
+            
             var output = new DataTable();
 
             output.Columns.Add("TagId", typeof(Guid));
@@ -94,6 +112,17 @@ public class SqlDataAccess : ISqlDataAccess
                 , p, commandType: CommandType.StoredProcedure);
             //await connection.ExecuteAsync(sql, parameter);
             Console.WriteLine(affectedLines);
+            return true;
         }
     }
+
+    public void DeleteData<U>(string sql, U parameter)
+    {
+        var connectionString = _configuration.GetConnectionString(ConnectionString);
+        using (IDbConnection connection = new SqlConnection(connectionString))
+        {
+            connection.Execute(sql, parameter);
+        }
+    }
+
 }

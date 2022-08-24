@@ -1,4 +1,5 @@
-﻿@inject IJSRuntime JSRuntime
+﻿@inject IJSRuntime JsRuntime
+@inject RecipeState State
 @if (Show)
 {
     <div class="dialog-container" id="dialog-container" >
@@ -11,9 +12,25 @@
 @code {
     
     [Parameter]
-    public RenderFragment ChildContent { get; set; }
+    public RenderFragment ChildContent { get; set; } = null!;
 
     [Parameter]
     public bool Show { get; set; }
-    
+   
+
+    protected override async Task OnInitializedAsync()
+    {
+        JsRuntime.
+            InvokeVoidAsync("keypress.init", DotNetObjectReference.Create(this));
+    }
+
+
+    [JSInvokable("CloseModal")]
+    public void CloseModal()
+    {
+        State.RemoveDialog();
+        Show = false;
+        StateHasChanged();
+    }
+
 }

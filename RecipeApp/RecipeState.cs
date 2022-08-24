@@ -16,21 +16,40 @@ public class RecipeState
         _toastService = toastService;
     }
 
-    public bool ShowDialog { get; private set; }
+    public bool ShowDialogCreate { get; private set; } = false;
     public CreateRecipe NewRecipe { get; private set; } = null!;
     public List<RecipeModel> RecipeList { get; set; } = null!;
-    public string SearchString { get; set; }
-
-    public void ShowCreateDialog(CreateRecipe command)
+    
+    public void ShowCreateDialog(Guid Id)
     {
-        ShowDialog = true;
-        NewRecipe = new CreateRecipe();
+        ShowDialogCreate = true;
+        
+        if (Id == Guid.Empty)
+        {
+            NewRecipe = new CreateRecipe();
+        }
+        else
+        {
+            var query = _recipeData.GetRecipe(Id).Result;
+            NewRecipe = new CreateRecipe
+            {
+                Id = query.Id,
+                Name = query.Name,
+                Calorie = query.Calorie,
+                Ingredient = query.Ingredient,
+                Image = query.Image,
+                TagList = query.TagList!
+            };
+        }
+
     }
+
     public void RemoveDialog()
     {
-        ShowDialog = false;
-       
+        ShowDialogCreate = false;
+        NewRecipe = new CreateRecipe();
     }
+
     public void ConfirmRecipe()
     {
 
@@ -54,10 +73,18 @@ public class RecipeState
             });
         }
 
-        ShowDialog = false;
-        _recipeData.InsertRecipe(recipe);
-        RecipeList.Add(recipe);
-        _toastService.ShowSuccess("Your recipe added successfully");
+        ShowDialogCreate = false;
+       
+        if (_recipeData.InsertRecipe(recipe).Result)
+        {
+            RecipeList.Add(recipe);
+            _toastService.ShowSuccess("Your recipe added successfully");
+        }
+        else
+        {
+            _toastService.ShowError("Duplicate Record!, Please chose another name");
+        }
+        
         NewRecipe = new CreateRecipe();
     }
 

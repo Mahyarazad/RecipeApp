@@ -7,7 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\EventHelper.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <_ContentIncludedByDefault Remove="Pages\AdminREcipe.razor" />
+    <_ContentIncludedByDefault Remove="wwwroot\EventHelper.cs" />
   </ItemGroup>
 
   <ItemGroup>

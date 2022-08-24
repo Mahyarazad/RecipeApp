@@ -4,6 +4,7 @@ namespace DataAccessLibrary.Models;
 
 public class CreateRecipe
 {
+    public Guid Id { get; set; }
     [Required(ErrorMessage = "Name is required")]
     public string? Name { get; set; }
 
@@ -13,3 +14,4 @@ public class CreateRecipe
     public List<Tags>? TagList { get; set; } = new List<Tags>();
     public string? Image { get; set; }
 }
+
