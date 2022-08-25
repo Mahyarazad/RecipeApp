@@ -72,7 +72,15 @@ public class RecipeState
                 RecipeId = recipe.Id,
                 NewTag = tag.NewTag
             });
+
+            if (tag.NewTag)
+            {
+                var target = RecipeList.First(x => x.Id == NewRecipe.Id);
+                target.TagList.Add(tag);
+                RecipeList.First(x => x.Id == NewRecipe.Id).TagList = target.TagList;
+            }
         }
+
 
         ShowDialogCreate = false;
         if (NewRecipe.Id==Guid.Empty)
@@ -92,6 +100,7 @@ public class RecipeState
             if (_recipeData.UpdateRecipe(recipe).Result)
             {
                 _toastService.ShowSuccess("Your recipe updated successfully");
+                
             }
             else
             {

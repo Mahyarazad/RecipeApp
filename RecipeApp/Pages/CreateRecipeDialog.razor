@@ -120,12 +120,12 @@
     {
         Data.DeleteTag(Id);
         EditTagList.Remove(EditTagList.FirstOrDefault(t => t.TagId == Id)!);
-        //foreach (var item in State.RecipeList)
-        //{
-        //    var target = item.TagList.First(x => x.TagId == Id);
-        //    item.TagList.Remove(target);
-        //}
-        //StateHasChanged();
+        var modifiedTarget = State.RecipeList.First(x => x.Id == recipeId);
+        State.RecipeList.Remove(modifiedTarget);
+        var tagList = modifiedTarget.TagList;        
+        modifiedTarget.TagList.Remove(tagList.First(x => x.TagId == Id));
+        State.RecipeList.Add(modifiedTarget);
+       
     }
 
     private void AddTags()
@@ -152,6 +152,8 @@
             Tag = TagValue.TrimEnd(),
             NewTag = true
         });
+
+
 
         tagValidation = false;
         TagValue = string.Empty;
