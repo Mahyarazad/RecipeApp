@@ -30,6 +30,13 @@ public class RecipeData : IRecipeData
        
     }
 
+    public Task<bool> UpdateRecipe(RecipeModel model)
+    {
+        const string sql = @"update dbo.Recipe set Name=@Name, Calorie=@Calorie, Image=@Image, Ingredient=@Ingredient where Id=@Id;";
+        
+        return Task.FromResult(_dataAccess.UpdateData(sql, model));
+    }
+
     public async Task<RecipeModel?> GetRecipe(Guid id)
     {
         return await 
@@ -38,10 +45,19 @@ public class RecipeData : IRecipeData
        
     }
 
-    public Task DeleteTag(Guid Id)
+    public Task DeleteTag(Guid id)
     {
-       
-        _dataAccess.DeleteData(@"delete from dbo.Tags where TagId = @Id", new {Id});
+        _dataAccess.DeleteData(@"delete from dbo.Tags where TagId = @Id", new {id});
+        return Task.CompletedTask;
+    }
+
+    public Task DeleteRecipe(Guid id, List<Guid> tagIdList )
+    {
+        foreach (var tagId in tagIdList)
+        {
+            _dataAccess.DeleteData(@"delete from dbo.Tags where TagId = @tagId", new { tagId });
+        }
+        _dataAccess.DeleteData(@"delete from dbo.Recipe where Id = @Id", new { id });
         return Task.CompletedTask;
     }
 }

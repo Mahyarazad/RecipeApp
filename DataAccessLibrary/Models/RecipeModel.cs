@@ -21,6 +21,7 @@ public class Tags
     public Guid RecipeId { get; set; }
     [Required, MaxLength(30)]
     public string Tag { get; set; }
-    
+    public bool NewTag { get; set; }
+
 }
 

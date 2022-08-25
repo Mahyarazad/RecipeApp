@@ -7,12 +7,13 @@
 @inject RecipeState State
 
 
-
-<input class="col-9 col-lg-6 px-2 py-2 mx-2 my-2"
+<Tooltip Text="You can search through tags, ingredients, and everything">
+<input class="px-2 py-2 mx-2 my-2"
        @bind-value="SearchString"
        @bind-value:event="onchange"
        @oninput="Search"
        placeholder="Search Everything ..."/>
+</Tooltip>
 <div class="d-flex flex-column">
    
 
@@ -33,7 +34,7 @@
                 @foreach (var recipe in RecipeList.Select((rec, index)=> new {rec, index}))
                 {
                    
-                        <div class="col-lg-3 col-9">
+                        <div class="col-lg-4 col-9 col-xl-3 col-md-6">
                             <RecipeCard Recipe="@recipe.rec" ClassGroup=""/>
                         </div>
                     
@@ -65,11 +66,21 @@
         else
         {
             var target = args.Value!.ToString()!.ToLower();
-            RecipeList = RecipeList.Where(recipe =>
-                recipe.Name.ToLower().Contains(target) ||
-                recipe.Ingredient.ToLower().Contains(target) ||
-                recipe.TagList.Any(tag => tag.Tag.ToLower().Contains(target))
-                ).ToList();
+           
+            RecipeList = 
+                RecipeList.Where(recipe =>
+                    recipe.Name.ToLower().Contains(target) ||
+                    recipe.Ingredient.ToLower().Contains(target) || 
+
+                    recipe.TagList!.Any(tag =>
+                    {
+                        if (tag == null)
+                            return false;
+                        return tag.Tag.ToLower().Contains(target);
+                    })
+                    ).ToList();
+           
+           
         }
     }
 

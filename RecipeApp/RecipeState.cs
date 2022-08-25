@@ -18,7 +18,7 @@ public class RecipeState
 
     public bool ShowDialogCreate { get; private set; } = false;
     public CreateRecipe NewRecipe { get; private set; } = null!;
-    public List<RecipeModel> RecipeList { get; set; } = null!;
+    public List<RecipeModel> RecipeList { get; set; }
     
     public void ShowCreateDialog(Guid Id)
     {
@@ -44,7 +44,7 @@ public class RecipeState
 
     }
 
-    public void RemoveDialog()
+    public async Task RemoveDialog()
     {
         ShowDialogCreate = false;
         NewRecipe = new CreateRecipe();
@@ -55,7 +55,7 @@ public class RecipeState
 
         var recipe = new RecipeModel
         {
-            Id = Guid.NewGuid(),
+            Id = NewRecipe.Id,
             Image = NewRecipe.Image,
             Name = NewRecipe.Name!,
             Ingredient = NewRecipe.Ingredient!,
@@ -69,23 +69,44 @@ public class RecipeState
             {
                 TagId = tag.TagId,
                 Tag = tag.Tag,
-                RecipeId = recipe.Id
+                RecipeId = recipe.Id,
+                NewTag = tag.NewTag
             });
         }
 
         ShowDialogCreate = false;
-       
-        if (_recipeData.InsertRecipe(recipe).Result)
+        if (NewRecipe.Id==Guid.Empty)
         {
-            RecipeList.Add(recipe);
-            _toastService.ShowSuccess("Your recipe added successfully");
+            if (_recipeData.InsertRecipe(recipe).Result)
+            {
+                RecipeList.Add(recipe);
+                _toastService.ShowSuccess("Your recipe added successfully");
+            }
+            else
+            {
+                _toastService.ShowError("Duplicate Record!, Please chose another name");
+            }
         }
         else
         {
-            _toastService.ShowError("Duplicate Record!, Please chose another name");
+            if (_recipeData.UpdateRecipe(recipe).Result)
+            {
+                _toastService.ShowSuccess("Your recipe updated successfully");
+            }
+            else
+            {
+                _toastService.ShowError("Duplicate Record!, Another record with this name exists");
+            }
         }
         
         NewRecipe = new CreateRecipe();
+    }
+
+    public void DeleteRecipe(Guid id, List<Guid>? tagIdList)
+    {
+
+        _recipeData.DeleteRecipe(id, tagIdList);
+        RecipeList.Remove(RecipeList.FirstOrDefault(x => x.Id == id));
     }
 
     public void RemoveTag(string value)
@@ -93,6 +114,4 @@ public class RecipeState
         var target = NewRecipe.TagList!.FirstOrDefault(x => x.Tag == value);
         NewRecipe.TagList!.Remove(target!);
     }
-
-   
 }

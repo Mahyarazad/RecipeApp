@@ -64,12 +64,13 @@ public class SqlDataAccess : ISqlDataAccess
                     return recipeModel;
                 }, splitOn: "TagId");
 
-            var result = data.GroupBy(p => p.Id).Select(g =>
-            {
-                var groupedRecipe = g.First();
-                groupedRecipe.TagList = g.Select(p => p.TagList.Single()).ToList();
-                return groupedRecipe;
-            });
+            var result = 
+                data.GroupBy(p => p.Id).Select(g =>
+                    {
+                        var groupedRecipe = g.First();
+                        groupedRecipe.TagList = g.Select(p => p.TagList.Single()).ToList();
+                        return groupedRecipe;
+                    });
 
             return result.ToList();
         }
@@ -78,19 +79,17 @@ public class SqlDataAccess : ISqlDataAccess
     public bool SaveData(string sql, RecipeModel parameter)
     {
         var connectionString = _configuration.GetConnectionString(ConnectionString);
-
-        
-
         using (IDbConnection connection = new SqlConnection(connectionString))
         {
+
             if (connection
                 .ExecuteScalar<bool>(@"select count(1) from dbo.Recipe where Name=@name",
                     new { parameter.Name }))
             {
                 return false;
             }
-                
-            
+
+            parameter.Id = new Guid();
             var output = new DataTable();
 
             output.Columns.Add("TagId", typeof(Guid));
@@ -113,6 +112,48 @@ public class SqlDataAccess : ISqlDataAccess
             //await connection.ExecuteAsync(sql, parameter);
             Console.WriteLine(affectedLines);
             return true;
+        }
+    }
+
+    public bool UpdateData(string sql, RecipeModel parameter)
+    {
+        var connectionString = _configuration.GetConnectionString(ConnectionString);
+        using (IDbConnection connection = new SqlConnection(connectionString))
+        {
+
+            var queryNameControl = connection.Query<Guid>(@"select Id from dbo.Recipe where Name=@name",
+                new { parameter.Name }).First();
+            
+            if (queryNameControl!=parameter.Id)
+            {
+                return false;
+            }
+            else
+            {
+                connection.Execute(sql, parameter);
+                if (parameter.TagList.Any())
+                {
+                    var output = new DataTable();
+
+                    output.Columns.Add("TagId", typeof(Guid));
+                    output.Columns.Add("Tag", typeof(string));
+                    output.Columns.Add("RecipeId", typeof(Guid));
+
+                    foreach (var tag in parameter.TagList.Where(x=>x.NewTag))
+                    {
+                        output.Rows.Add(tag.TagId, tag.Tag, tag.RecipeId);
+                    }
+
+                    var p = new
+                    {
+                        tag = output.AsTableValuedParameter("BasicUDT")
+                    };
+                    connection.Execute("dbo.Recipe_InsertSet"
+                        , p, commandType: CommandType.StoredProcedure);
+                }
+                
+                return true;
+            }
         }
     }
 

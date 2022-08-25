@@ -4,8 +4,9 @@ namespace DataAccessLibrary;
 
 public interface ISqlDataAccess
 {
-    Task<RecipeModel> LoadSingleRecipe<U>(string storedProcedure, U parameter);
+    Task<RecipeModel> LoadSingleRecipe<TU>(string storedProcedure, TU parameter);
     Task<List<RecipeModel>> LoadRecipe(string sql);
     bool SaveData(string sql, RecipeModel parameter);
-    void DeleteData<U>(string sql, U parameter);
+    bool UpdateData(string sql, RecipeModel parameter);
+    void DeleteData<TU>(string sql, TU parameter);
 }

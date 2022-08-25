@@ -37,7 +37,7 @@
                         {
                             <div id="tag" class="d-flex my-2">
                                 <span class="badge bg-secondary text-center">@tag.Tag</span>
-                                <div class="btn-close btn-sm mx-2 align-self-center" @onclick="@(()=>DeleteEditedTags(tag.TagId))"></div>
+                                <div class="btn-close btn-sm mx-2 align-self-center" @onclick="@(()=>DeleteEditedTags(tag.TagId, Recipe.Id))"></div>
                             </div>
                         }
                     </div>
@@ -53,7 +53,7 @@
                         {
                             <div id="tag" class="d-flex my-2">
                                 <span class="badge bg-secondary text-center">@tag</span>
-                                <div class="btn-close btn-sm mx-2 align-self-center" @onclick="@(() => DeleteTag(tag))"></div>
+                                <div class="btn-close btn-sm mx-2 align-self-center" @onclick="@(()=> DeleteTag(tag))"></div>
                             </div>
                         }
                     </div>
@@ -101,13 +101,12 @@
                 EditTagList.Add(new Tags
                 {
                     TagId = tag.TagId,
-                    Tag = tag.Tag
+                    Tag = tag.Tag,
+                    NewTag = false
                     
                 });
-
             }
         }
-
     }
 
     private List<string> Tags { get; set; } = new List<string>();
@@ -117,32 +116,48 @@
 
     private Guid Id => Guid.NewGuid();
 
-    private void DeleteEditedTags(Guid Id)
+    private void DeleteEditedTags(Guid Id, Guid recipeId)
     {
         Data.DeleteTag(Id);
-        EditTagList.Remove(EditTagList.FirstOrDefault(t => t.TagId == Id));
-        StateHasChanged();
+        EditTagList.Remove(EditTagList.FirstOrDefault(t => t.TagId == Id)!);
+        //foreach (var item in State.RecipeList)
+        //{
+        //    var target = item.TagList.First(x => x.TagId == Id);
+        //    item.TagList.Remove(target);
+        //}
+        //StateHasChanged();
     }
 
     private void AddTags()
     {
         if (string.IsNullOrEmpty(TagValue)) return;
-        if (Tags.Any(x => x.ToLower() == TagValue.ToLower()))
+        if (Tags.Any(x => x.ToLower() == TagValue.ToLower().TrimEnd()))
         {
             tagValidation = true;
             return;
         }
+        foreach (var x in EditTagList)
+        {
+            if (x.Tag.ToLower() == TagValue.ToLower().TrimEnd())
+            {
+                tagValidation = true;
+                return;
+            }
+        }
         Tags.Add(TagValue);
+
         State.NewRecipe.TagList.Add(new Tags
         {
             TagId = Id,
-            Tag = TagValue
+            Tag = TagValue.TrimEnd(),
+            NewTag = true
         });
+
         tagValidation = false;
         TagValue = string.Empty;
     }
 
-    private void DeleteTag(string value)
+    private async Task DeleteTag(string value)
     {
         tagValidation = false;
         if (string.IsNullOrEmpty(value)) return;
@@ -151,6 +166,9 @@
 
         State.RemoveTag(value);
         Tags.Remove(tag);
+        
+        await InvokeAsync(StateHasChanged);
+       
     }
 
     private void ClearValidation()

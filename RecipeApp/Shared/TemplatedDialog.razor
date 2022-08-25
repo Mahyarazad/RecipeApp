@@ -26,11 +26,11 @@
 
 
     [JSInvokable("CloseModal")]
-    public void CloseModal()
+    public async Task CloseModal()
     {
         State.RemoveDialog();
         Show = false;
-        StateHasChanged();
+        await InvokeAsync(StateHasChanged);
     }
 
 }

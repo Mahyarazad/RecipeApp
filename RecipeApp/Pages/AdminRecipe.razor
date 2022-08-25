@@ -1,5 +1,6 @@
 ﻿
 @using DataAccessLibrary
+@using DataAccessLibrary.Models
 
 
 @inject IRecipeData Data
@@ -46,12 +47,9 @@
                         @if (item.TagList != null && item.TagList.Any())
                         {
                             <ul class="">
-                                @foreach (var tag in item.TagList)
+                                @foreach (var tag in item.TagList.Where(tag => tag != null))
                                 {
-                                    if (tag != null)
-                                    {
-                                        <li class="">@tag.Tag</li>
-                                    }
+                                    <li class="">@tag.Tag</li>
                                 }
                             </ul>
                         }
@@ -65,7 +63,9 @@
                                 class="btn btn-primary">
                             Edit
                         </button>
-                        <button class="btn btn-danger">Delete</button>
+                        <button class="btn btn-danger" 
+                                @onclick="() => { DeleteRecipeCheck(item.Id, item.TagList.Where(tag => tag != null).Select(tags => tags.TagId).ToList());
+                                }">Delete</button>
                     </th>
                 </tr>
             }
@@ -93,6 +93,15 @@
     protected override async Task OnInitializedAsync()
     {
         State.RecipeList = await Data.GetRecipeList();
+        JsRuntime.
+            InvokeVoidAsync("delete.init", DotNetObjectReference.Create(this));
         await base.OnInitializedAsync();
+    }
+
+    [JSInvokable("DeleteRecipeCheck")]
+    public async Task DeleteRecipeCheck(Guid id, List<Guid> tagIdList )
+    {
+        if(await JsRuntime.InvokeAsync<bool>("confirm", "Are you sure?"))
+            State.DeleteRecipe(id, tagIdList);
     }
 }
