@@ -115,6 +115,12 @@ public class RecipeState
             if (_recipeData.UpdateRecipe(recipe).Result)
             {
                 _toastService.ShowSuccess("Your recipe updated successfully");
+                // Update the state
+
+                var target = RecipeList.FirstOrDefault(x => x.Id == recipe.Id);
+                RecipeList.Remove(target);
+                RecipeList.Add(recipe);
+
             }
             else
             {
