@@ -9,7 +9,8 @@ public class RecipeState
     private readonly IRecipeData _recipeData;
     private readonly IToastService _toastService;
 
-    
+    // Injecting the toast and db operations
+
     public RecipeState(IRecipeData recipeData, IToastService toastService)
     {
         _recipeData = recipeData;
@@ -50,9 +51,13 @@ public class RecipeState
         NewRecipe = new CreateRecipe();
     }
 
+    // With this method we handle both insert and update operations 
+
     public void ConfirmRecipe()
     {
-
+        // Grab the data from the Recipe Parameter and create a instance of Recipe Model
+        // Calorie can be a null item, so we manually cast it to long
+        
         var recipe = new RecipeModel
         {
             Id = NewRecipe.Id,
@@ -60,9 +65,10 @@ public class RecipeState
             Name = NewRecipe.Name!,
             Ingredient = NewRecipe.Ingredient!,
             Calorie = (long)NewRecipe.Calorie,
-
         };
 
+        // We loop through the list of new tags, and prepare the recipe model
+        
         foreach (var tag in NewRecipe.TagList!)
         {
             recipe.TagList.Add(new Tags
@@ -72,6 +78,8 @@ public class RecipeState
                 RecipeId = recipe.Id,
                 NewTag = tag.NewTag
             });
+
+            // We add the new tags for update operation
 
             if (tag.NewTag)
             {
@@ -85,6 +93,8 @@ public class RecipeState
             }
         }
 
+        // Close the dialog then check the Id if it is new Guid we use insert method 
+        // if not we use update method and notify the user with the result
 
         ShowDialogCreate = false;
         if (NewRecipe.Id==Guid.Empty)

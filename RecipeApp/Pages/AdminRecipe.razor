@@ -1,6 +1,5 @@
 ﻿
 @using DataAccessLibrary
-@using DataAccessLibrary.Models
 
 
 @inject IRecipeData Data
@@ -63,9 +62,10 @@
                                 class="btn btn-primary">
                             Edit
                         </button>
-                        <button class="btn btn-danger" 
-                                @onclick="() => { DeleteRecipeCheck(item.Id, item.TagList.Where(tag => tag != null).Select(tags => tags.TagId).ToList());
-                                }">Delete</button>
+                        <button class="btn btn-danger"
+                                @onclick="() => { DeleteRecipeCheck(item.Id, item.TagList.Where(tag => tag != null).Select(tags => tags.TagId).ToList()); }">
+                            Delete
+                        </button>
                     </th>
                 </tr>
             }
@@ -84,22 +84,20 @@
 </TemplatedDialog>
 
 
-
-
 @code {
 
     private string title = "Recipe Management";
     
+
     protected override async Task OnInitializedAsync()
     {
         State.RecipeList = await Data.GetRecipeList();
-        JsRuntime.
-            InvokeVoidAsync("delete.init", DotNetObjectReference.Create(this));
         await base.OnInitializedAsync();
     }
 
-    [JSInvokable("DeleteRecipeCheck")]
-    public async Task DeleteRecipeCheck(Guid id, List<Guid> tagIdList )
+    //prompt the user on deletion request
+
+    private async Task DeleteRecipeCheck(Guid id, List<Guid> tagIdList )
     {
         if(await JsRuntime.InvokeAsync<bool>("confirm", "Are you sure?"))
             State.DeleteRecipe(id, tagIdList);

@@ -17,7 +17,6 @@ public class RecipeData : IRecipeData
             "select * from Recipe r " +
                 "left join Tags t on t.RecipeId = r.Id; ";
 
-        //return  _dataAccess.LoadData<RecipeModel, dynamic>(sql, new { });
         return _dataAccess.LoadRecipe(sql);
 
     }

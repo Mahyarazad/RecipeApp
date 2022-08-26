@@ -20,7 +20,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        JsRuntime.
+        await JsRuntime.
             InvokeVoidAsync("keypress.init", DotNetObjectReference.Create(this));
     }
 

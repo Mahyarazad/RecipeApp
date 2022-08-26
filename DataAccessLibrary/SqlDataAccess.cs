@@ -9,7 +9,7 @@ namespace DataAccessLibrary;
 public class SqlDataAccess : ISqlDataAccess
 {
     private readonly IConfiguration _configuration;
-    public string ConnectionString { get; set; } = "Default";
+    private string ConnectionString { get; set; } = "Default";
 
     public SqlDataAccess(IConfiguration configuration)
     {
@@ -32,6 +32,8 @@ public class SqlDataAccess : ISqlDataAccess
                     }, splitOn: "TagId",
                     param:parameter,
                     commandType: CommandType.StoredProcedure);
+            
+            // check the tag list table if no tags attached, we directly make a query on Recipe table 
 
             if (data.Count() == 0)
             {
@@ -48,7 +50,7 @@ public class SqlDataAccess : ISqlDataAccess
                     return groupedRecipe;
                 });
 
-                return result.FirstOrDefault();
+                return result.FirstOrDefault()!;
             }
         }
     }
@@ -63,6 +65,8 @@ public class SqlDataAccess : ISqlDataAccess
                     recipeModel.TagList.Add(tags);
                     return recipeModel;
                 }, splitOn: "TagId");
+            
+            // the grouping procedure from dapper documentation
 
             var result = 
                 data.GroupBy(p => p.Id).Select(g =>
@@ -81,6 +85,7 @@ public class SqlDataAccess : ISqlDataAccess
         var connectionString = _configuration.GetConnectionString(ConnectionString);
         using (IDbConnection connection = new SqlConnection(connectionString))
         {
+            // check any duplicate record
 
             if (connection
                 .ExecuteScalar<bool>(@"select count(1) from dbo.Recipe where Name=@name",
@@ -89,7 +94,8 @@ public class SqlDataAccess : ISqlDataAccess
                 return false;
             }
 
-            //parameter.Id = new Guid();
+            // create a table for tag list 
+
             var output = new DataTable();
 
             output.Columns.Add("TagId", typeof(Guid));
@@ -105,14 +111,11 @@ public class SqlDataAccess : ISqlDataAccess
             {
                 tag = output.AsTableValuedParameter("BasicUDT")
             };
+            
+            
+            connection.Execute(sql, parameter);
+            connection.Execute("dbo.Recipe_InsertSet", p, commandType: CommandType.StoredProcedure);
 
-            var lineaffected = connection.Execute(sql, parameter);
-            var affectedLines = connection.Execute("dbo.Recipe_InsertSet"
-                , p, commandType: CommandType.StoredProcedure);
-          
-
-            //await connection.ExecuteAsync(sql, parameter);
-            Console.WriteLine(affectedLines);
             return true;
         }
     }
@@ -126,13 +129,18 @@ public class SqlDataAccess : ISqlDataAccess
             var queryNameControl = connection.Query<Guid>(@"select Id from dbo.Recipe where Name=@name",
                 new { parameter.Name }).FirstOrDefault();
             
+            // check whether the updated record has any duplicate in the db
+
             if (queryNameControl!=parameter.Id && queryNameControl!=Guid.Empty)
             {
                 return false;
             }
             else
             {
+                // update the recipe table 
+
                 connection.Execute(sql, parameter);
+
                 if (parameter.TagList.Any())
                 {
                     var output = new DataTable();

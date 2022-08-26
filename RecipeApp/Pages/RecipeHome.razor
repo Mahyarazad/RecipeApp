@@ -8,19 +8,18 @@
 
 
 <Tooltip Text="You can search through tags, ingredients, and everything">
-<input class="px-2 py-2 mx-2 my-2"
-       @bind-value="SearchString"
-       @bind-value:event="onchange"
-       @oninput="Search"
-       placeholder="Search Everything ..."/>
+    <input class="px-2 py-2 mx-2 my-2"
+           @bind-value="SearchString"
+           @bind-value:event="onchange"
+           @oninput="Search"
+           placeholder="Search Everything ..."/>
 </Tooltip>
-<div class="d-flex flex-column">
-   
 
+<div class="d-flex flex-column">
 
     @if (RecipeList == null)
     {
-        <p> Loading ... </p>
+        <text> Loading ... </text>
     }
     else
     {
@@ -33,11 +32,9 @@
             {
                 @foreach (var recipe in RecipeList.Select((rec, index)=> new {rec, index}))
                 {
-                   
-                        <div class="col-lg-4 col-9 col-xl-3 col-md-6">
-                            <RecipeCard Recipe="@recipe.rec" ClassGroup=""/>
-                        </div>
-                    
+                    <div class="col-lg-4 col-9 col-xl-3 col-md-6">
+                        <RecipeCard Recipe="@recipe.rec" ClassGroup=""/>
+                    </div>
                 }
             }
 
@@ -79,7 +76,6 @@
                         return tag.Tag.ToLower().Contains(target);
                     })
                     ).ToList();
-           
            
         }
     }
