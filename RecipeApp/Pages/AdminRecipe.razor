@@ -103,5 +103,6 @@
     {
         if(await JsRuntime.InvokeAsync<bool>("confirm", "Are you sure?"))
             State.DeleteRecipe(id, tagIdList);
+        StateHasChanged();
     }
 }

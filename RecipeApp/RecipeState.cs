@@ -75,9 +75,13 @@ public class RecipeState
 
             if (tag.NewTag)
             {
-                var target = RecipeList.First(x => x.Id == NewRecipe.Id);
-                target.TagList.Add(tag);
-                RecipeList.First(x => x.Id == NewRecipe.Id).TagList = target.TagList;
+                var target = RecipeList.FirstOrDefault(x => x.Id == NewRecipe.Id);
+                if (target != null)
+                {
+                    target.TagList.Add(tag);
+                    RecipeList.First(x => x.Id == NewRecipe.Id).TagList = target.TagList;
+                }
+                
             }
         }
 
@@ -85,6 +89,7 @@ public class RecipeState
         ShowDialogCreate = false;
         if (NewRecipe.Id==Guid.Empty)
         {
+            recipe.Id = Guid.NewGuid();
             if (_recipeData.InsertRecipe(recipe).Result)
             {
                 RecipeList.Add(recipe);
@@ -92,7 +97,7 @@ public class RecipeState
             }
             else
             {
-                _toastService.ShowError("Duplicate Record!, Please chose another name");
+                _toastService.ShowError("Duplicate Record!, Please choose another name");
             }
         }
         else
@@ -100,7 +105,6 @@ public class RecipeState
             if (_recipeData.UpdateRecipe(recipe).Result)
             {
                 _toastService.ShowSuccess("Your recipe updated successfully");
-                
             }
             else
             {
@@ -113,9 +117,9 @@ public class RecipeState
 
     public void DeleteRecipe(Guid id, List<Guid>? tagIdList)
     {
-
-        _recipeData.DeleteRecipe(id, tagIdList);
-        RecipeList.Remove(RecipeList.FirstOrDefault(x => x.Id == id));
+        _recipeData.DeleteRecipe(id, tagIdList!);
+        var itemToRemove = RecipeList.FirstOrDefault(x => x.Id == id);
+        if (itemToRemove != null) RecipeList.Remove(itemToRemove);
     }
 
     public void RemoveTag(string value)

@@ -89,7 +89,7 @@ public class SqlDataAccess : ISqlDataAccess
                 return false;
             }
 
-            parameter.Id = new Guid();
+            //parameter.Id = new Guid();
             var output = new DataTable();
 
             output.Columns.Add("TagId", typeof(Guid));
@@ -98,7 +98,7 @@ public class SqlDataAccess : ISqlDataAccess
 
             foreach (var tag in parameter.TagList)
             {
-                output.Rows.Add(tag.TagId, tag.Tag, tag.RecipeId);
+                output.Rows.Add(tag.TagId, tag.Tag, parameter.Id);
             }
 
             var p = new
@@ -109,6 +109,8 @@ public class SqlDataAccess : ISqlDataAccess
             var lineaffected = connection.Execute(sql, parameter);
             var affectedLines = connection.Execute("dbo.Recipe_InsertSet"
                 , p, commandType: CommandType.StoredProcedure);
+          
+
             //await connection.ExecuteAsync(sql, parameter);
             Console.WriteLine(affectedLines);
             return true;
@@ -122,9 +124,9 @@ public class SqlDataAccess : ISqlDataAccess
         {
 
             var queryNameControl = connection.Query<Guid>(@"select Id from dbo.Recipe where Name=@name",
-                new { parameter.Name }).First();
+                new { parameter.Name }).FirstOrDefault();
             
-            if (queryNameControl!=parameter.Id)
+            if (queryNameControl!=parameter.Id && queryNameControl!=Guid.Empty)
             {
                 return false;
             }
