@@ -4,7 +4,7 @@
 
 @inject RecipeState State
 @inject IRecipeData Data
-
+@inject IJSRuntime JsRuntime
 <div class="m-4">
     <EditForm Model="@Recipe" OnValidSubmit="OnConfirm" OnInvalidSubmit="@(() => { })">
         <DataAnnotationsValidator/>
@@ -28,7 +28,7 @@
                 <InputText id="image" @bind-Value="Recipe.Image" placeholder="Add an image link"/>
             </div>
             
-            <!-- Edit  saved tags -->
+            <!-- EDIT SAVED TAGS -->
             <div class="d-flex flex-column mt-2">
                 @if (EditTagList != null && EditTagList.Any())
                 {
@@ -37,14 +37,17 @@
                         {
                             <div id="tag" class="d-flex my-2">
                                 <span class="badge bg-secondary text-center">@tag.Tag</span>
-                                <div class="btn-close btn-sm mx-2 align-self-center" @onclick="@(()=>DeleteEditedTags(tag.TagId, Recipe.Id))"></div>
+                                <Tooltip Text="@ApplicationMessages.DeleteTagButton">
+                                    <div class="btn-close btn-sm mx-2 align-self-center" @onclick="@(()=>DeleteEditedTags(tag.TagId, Recipe.Id))"></div>
+                                </Tooltip>
                             </div>
                         }
                     </div>
                 }
             </div>
-            
-            <!-- Create new tags -->
+            <!-- END OF EDIT SAVED TAGS -->
+
+            <!-- CREATE NEW TAGS -->
             <div class="d-flex flex-column mt-2">
                 @if (Tags != null && Tags.Any())
                 {
@@ -53,16 +56,18 @@
                         {
                             <div id="tag" class="d-flex my-2">
                                 <span class="badge bg-secondary text-center">@tag</span>
-                                <div class="btn-close btn-sm mx-2 align-self-center" @onclick="@(()=> DeleteTag(tag))"></div>
+                                <Tooltip Text="@ApplicationMessages.DeleteTagButton">
+                                    <div class="btn-close btn-sm mx-2 align-self-center" @onclick="@(()=> DeleteTag(tag))"></div>
+                                </Tooltip>
                             </div>
                         }
                     </div>
                 }
                 <label>Tags</label>
-                @if (tagValidation)
+                @if (TagValidation)
                 {
                     <span class="text-danger">
-                        You cannot add duplicate tags
+                        @ApplicationMessages.DuplicateTagsError
                     </span>
                 }
                 <div class="d-flex flex-row">
@@ -72,10 +77,13 @@
                            autocomplete="off"
                            @bind-value="TagValue"
                            @onkeyup="ClearValidation"/>
-                    <button type="button" class="oi oi-plus p-2 btn btn-primary" onclick="@AddTags"></Button>
+                    <Tooltip Text="@ApplicationMessages.AddTagButton">
+                        <button type="button" class="oi oi-plus p-2 btn btn-primary ms-2" onclick="@AddTags"></button>
+                    </Tooltip>
                 </div>
             </div>
         </div>
+        <!-- END OF EDIT CREATE TAGS -->
 
         <div class="float-end mt-4">
             <button type="button" class="btn btn-secondary mr-auto" @onclick="OnCancel">Cancel</button>
@@ -91,11 +99,29 @@
     [Parameter] public EventCallback OnConfirm { get; set; }
     [Parameter] public CreateRecipe Recipe { get; set; }
 
+    private List<string> Tags { get; set; } = new List<string>();
+    private List<Tags> EditTagList { get; set; } = new List<Tags>();
+    private string TagValue { get; set; }
+    bool TagValidation = false;
+
+    private Guid Id => Guid.NewGuid();
+
+    protected async override Task OnAfterRenderAsync(bool firstRedner)
+    {
+        if (firstRedner)
+        {
+            await JsRuntime.InvokeVoidAsync("AutoHeight");
+        }
+    }
+
     protected override async Task OnInitializedAsync()
     {
+        
         if (Recipe != null)
         {
-            Console.WriteLine(Recipe.Name);
+            // Loop through the recipe tags, and the false boolean to the existed tags
+            // This will help to manage the insertion operation in future modify
+
             foreach (var tag in Recipe.TagList)
             {
                 EditTagList.Add(new Tags
@@ -103,23 +129,19 @@
                     TagId = tag.TagId,
                     Tag = tag.Tag,
                     NewTag = false
-                    
                 });
             }
         }
+        
     }
-
-    private List<string> Tags { get; set; } = new List<string>();
-    private List<Tags> EditTagList { get; set; } = new List<Tags>();
-    private string TagValue { get; set; }
-    bool tagValidation = false;
-
-    private Guid Id => Guid.NewGuid();
 
     private void DeleteEditedTags(Guid Id, Guid recipeId)
     {
         Data.DeleteTag(Id);
         EditTagList.Remove(EditTagList.FirstOrDefault(t => t.TagId == Id)!);
+
+        // Update the application state
+
         var modifiedTarget = State.RecipeList.First(x => x.Id == recipeId);
         State.RecipeList.Remove(modifiedTarget);
         var tagList = modifiedTarget.TagList;        
@@ -133,19 +155,20 @@
         if (string.IsNullOrEmpty(TagValue)) return;
         if (Tags.Any(x => x.ToLower() == TagValue.ToLower().TrimEnd()))
         {
-            tagValidation = true;
+            TagValidation = true;
             return;
         }
+
         foreach (var x in EditTagList)
         {
             if (x.Tag.ToLower() == TagValue.ToLower().TrimEnd())
             {
-                tagValidation = true;
+                TagValidation = true;
                 return;
             }
         }
         Tags.Add(TagValue);
-
+        
         State.NewRecipe.TagList.Add(new Tags
         {
             TagId = Id,
@@ -155,13 +178,13 @@
 
 
 
-        tagValidation = false;
+        TagValidation = false;
         TagValue = string.Empty;
     }
 
     private async Task DeleteTag(string value)
     {
-        tagValidation = false;
+        TagValidation = false;
         if (string.IsNullOrEmpty(value)) return;
         var tag = Tags.FirstOrDefault(t => t == value);
         if (tag == null) return;
@@ -175,7 +198,7 @@
 
     private void ClearValidation()
     {
-        tagValidation = false;
+        TagValidation = false;
     }
 
 }

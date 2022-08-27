@@ -171,3 +171,20 @@ a, .btn-link {
 .tooltip-wrapper:hover span {
     visibility: visible;
 }
+
+.tag-font {
+    font-size: 13px;
+    background-color: #F5F5F5;
+}
+
+.tag-font-lg {
+    font-size: 16px;
+    background-color: #DCDCDC;
+}
+
+.recipe-detail {
+    border: none;
+    background-color: transparent;
+    resize: none;
+    outline: none;
+}

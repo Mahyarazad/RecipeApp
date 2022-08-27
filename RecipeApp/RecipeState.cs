@@ -21,7 +21,7 @@ public class RecipeState
     public CreateRecipe NewRecipe { get; private set; } = null!;
     public List<RecipeModel> RecipeList { get; set; }
     
-    public void ShowCreateDialog(Guid Id)
+    public void ShowRecipeDialog(Guid Id)
     {
         ShowDialogCreate = true;
         
@@ -103,18 +103,18 @@ public class RecipeState
             if (_recipeData.InsertRecipe(recipe).Result)
             {
                 RecipeList.Add(recipe);
-                _toastService.ShowSuccess("Your recipe added successfully");
+                _toastService.ShowSuccess(ApplicationMessages.CreateSuccess);
             }
             else
             {
-                _toastService.ShowError("Duplicate Record!, Please choose another name");
+                _toastService.ShowError(ApplicationMessages.DuplicateForCreation);
             }
         }
         else
         {
             if (_recipeData.UpdateRecipe(recipe).Result)
             {
-                _toastService.ShowSuccess("Your recipe updated successfully");
+                _toastService.ShowSuccess(ApplicationMessages.EditSuccess);
                 // Update the state
 
                 var target = RecipeList.FirstOrDefault(x => x.Id == recipe.Id);
@@ -124,7 +124,7 @@ public class RecipeState
             }
             else
             {
-                _toastService.ShowError("Duplicate Record!, Another record with this name exists");
+                _toastService.ShowError(ApplicationMessages.DuplicateForModify);
             }
         }
         

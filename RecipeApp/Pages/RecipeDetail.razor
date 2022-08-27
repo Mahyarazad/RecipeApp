@@ -4,6 +4,7 @@
 
 @inject RecipeState State
 @inject IRecipeData Data
+@inject IJSRuntime JsRuntime
 
 <div class="d-flex flex-column">
    
@@ -17,7 +18,9 @@
         <div class="w-75 position-topcenter px-2 py-2">
             <div class="d-flex flex-column pb-2">
                 <h4>Ingredients:</h4>
-                @Recipe.Ingredient
+                <textarea elastic readonly class="recipe-detail">
+                    @Recipe.Ingredient
+                </textarea>
             </div>
 
             <div class="d-flex flex-column pb-2">
@@ -29,9 +32,9 @@
                 <h4> Tags:</h4>
                 <div class="d-flex justify-content-start">
 
-                    @foreach (var tag in Recipe.TagList)
+                    @foreach (var item in Recipe.TagList.Select((tag, index) => new { tag, index }))
                     {
-                        <span class="btn-secondary btn mx-2"> @tag.Tag</span>
+                        <span class="border px-1 tag-font-lg rounded-3 text-black @TagCssClass(item.index)"> @item.tag.Tag</span>
                     }
                 </div>
             </div>
@@ -54,5 +57,13 @@
         Recipe = await Data.GetRecipe(recipeId);
         base.OnInitializedAsync();
     }
+    private string? TagCssClass(int index) => index > 0 ? "ms-2" :null;
 
+    protected async override Task OnAfterRenderAsync(bool firstRedner)
+    {
+        if (firstRedner)
+        {
+            await JsRuntime.InvokeVoidAsync("AutoHeight");
+        }
+    }
 }

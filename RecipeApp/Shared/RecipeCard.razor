@@ -1,29 +1,47 @@
 ﻿@using DataAccessLibrary.Models
 @using DataAccessLibrary
+@using Microsoft.AspNetCore.SignalR
 @inject IRecipeData Data
 
 
 <a class="card text-decoration-none px-2 py-2 mx-2 my-2" style="width: 18rem;" href="/RecipeDetail/@Recipe.Id">
-    <img class="img-thumbnail image-card" style="width: auto; height: 150px;" src="@Recipe.Image" alt="@Recipe.Image">
+    <img class="img-thumbnail image-card" style="width: auto; height: 320px;" src="@Recipe.Image" alt="@Recipe.Image">
     <div class="card-body">
         <p class="card-text text-black">
-            <strong>@Recipe.Name</strong>
+            <strong>
+                @(Recipe.Name.Length > 20 ? $"{Recipe.Name[..20]}..." :Recipe.Name)
+
+            </strong>
         </p>
-        <p class="card-text text-black">Total Calorie: <strong>@Recipe.Calorie</strong></p>
+        <p class="card-text text-black">Total Calorie: 
+            <Tooltip Text="@ApplicationMessages.AverageCalorieInfo">
+                <strong>@Recipe.Calorie kcal</strong>
+            </Tooltip>
+        </p>
+        <div class="d-flex">
+            @if (Recipe.TagList.Count > 0)
+            {
+                @foreach (var item in Recipe.TagList.Select((tag, index) => new { tag, index }))
+                {
+                    if (item.index < 2 && item.tag!=null)
+                    {
+
+                        <div class="border px-1 tag-font rounded-3 text-black @TagCssClass(item.index)">
+                            @(item.tag.Tag.Length > 15 ? $"{item.tag.Tag[..15]}..." : item.tag.Tag)
+                        </div>
+                    }
+                }
+            }
+        </div>
     </div>
 </a>
 
 @code {
     
-    //[Parameter] public RenderFragment<TItem> Item { get; set; }
-    //[Parameter] public Func<Task<IEnumerable<TItem>>> Loader { get; set; }
     [Parameter] public RecipeModel Recipe { get; set; }
     [Parameter] public string ClassGroup { get; set; }
+    
+    private string? TagCssClass(int index) => index > 0 ? "ms-2" :null;
 
-    //protected override async Task OnParametersSetAsync()
-    //{
-    //    items = await Loader();
-    //}
-   
-
+    
 }
