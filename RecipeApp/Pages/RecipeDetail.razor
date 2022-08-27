@@ -8,42 +8,45 @@
 
 <div class="d-flex flex-column">
    
-    <div class="d-flex justify-content-between">
+    <div class="d-flex justify-content-between border rounded-3">
 
         <div class="w-25 px-2 py-2">
             <h3>@Recipe.Name</h3>
-            <img src="@Recipe.Image" alt="@Recipe.Name" width="100%" />
+            <img src="@Recipe.Image" alt="@Recipe.Name" width="100%" class="img-thumbnail"/>
         </div>
 
-        <div class="w-75 position-topcenter px-2 py-2">
-            <div class="d-flex flex-column pb-2">
+        <div class="w-75 position-topcenter px-2 py-2 ">
+            <div class="d-flex flex-column ps-4 pb-4 pt-2 border rounded-3">
                 <h4>Ingredients:</h4>
                 <textarea elastic readonly class="recipe-detail">
                     @Recipe.Ingredient
                 </textarea>
             </div>
 
-            <div class="d-flex flex-column pb-2">
-                <h4 >Calorie:</h4>
-                <span >@Recipe.Calorie</span>
-            </div>
+            <div class="rounded-3 border my-2">
+                <div class="d-flex flex-column ps-4 pb-4 pt-2">
+                    <h4 >Calorie:</h4>
+                    <span class="">@Recipe.Calorie kcal</span>
+                </div>
 
-            <div class="d-flex flex-column">
-                <h4> Tags:</h4>
-                <div class="d-flex justify-content-start">
+                <div class="d-flex flex-column ps-4 pb-4 pt-2">
+                    <h4> Tags:</h4>
+                    <div class="d-flex justify-content-start">
 
-                    @foreach (var item in Recipe.TagList.Select((tag, index) => new { tag, index }))
-                    {
-                        <span class="border px-1 tag-font-lg rounded-3 text-black @TagCssClass(item.index)"> @item.tag.Tag</span>
-                    }
+                        @foreach (var item in Recipe.TagList.Select((tag, index) => new { tag, index }))
+                        {
+                            <span class="border px-1 tag-font-lg rounded-3 text-black @TagCssClass(item.index)"> @item.tag.Tag</span>
+                        }
+                    </div>
                 </div>
             </div>
+            <a class="btn-secondary btn float-end" href="/">Back</a>
         </div>
-        
+       
     </div>
-   
+    
 </div>
-<a class="btn-secondary btn float-end" href="/">Back</a>
+
 
 @code {
 

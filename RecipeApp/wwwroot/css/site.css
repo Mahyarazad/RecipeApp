@@ -172,14 +172,14 @@ a, .btn-link {
     visibility: visible;
 }
 
-.tag-font {
+.tag-font, .tag-font-lg {
     font-size: 13px;
     background-color: #F5F5F5;
 }
 
 .tag-font-lg {
     font-size: 16px;
-    background-color: #DCDCDC;
+
 }
 
 .recipe-detail {
@@ -187,4 +187,8 @@ a, .btn-link {
     background-color: transparent;
     resize: none;
     outline: none;
+}
+
+th {
+    font-weight: 100;
 }

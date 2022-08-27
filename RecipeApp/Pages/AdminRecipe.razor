@@ -9,13 +9,13 @@
 
 
     <PageTitle>@title</PageTitle>
-<h3>Recipe Management</h3>
-    <Tooltip Text="Add a new recipe">
-    <button @onclick="() => State.ShowRecipeDialog(Guid.Empty)"
-            class="btn btn-primary">
-        Create a new Recipe
-    </button>
-</Tooltip>
+    <h3>Recipe Management</h3>
+        <Tooltip Text="Add a new recipe">
+        <button @onclick="() => State.ShowRecipeDialog(Guid.Empty)"
+                class="btn btn-primary">
+            Create a new Recipe
+        </button>
+    </Tooltip>
 
     @if (State.RecipeList == null)
     {
@@ -41,7 +41,7 @@
                     <th>@item.Name</th>
                     <th>@item.Calorie</th>
                     <th>
-                        <img src="@item.Image" alt="@item.Name" width="200"/>
+                        <img src="@item.Image" alt="@item.Name" width="50" class="img-thumbnail"/>
                     </th>
 
                     <th >
@@ -105,8 +105,10 @@
 
     private async Task DeleteRecipeCheck(Guid id, List<Guid> tagIdList )
     {
-        if(await JsRuntime.InvokeAsync<bool>("confirm", "Are you sure?"))
+        if (await JsRuntime.InvokeAsync<bool>("DeleteTagPrompt", tagIdList))
+        {
             State.DeleteRecipe(id, tagIdList);
-        StateHasChanged();
+            StateHasChanged();
+        }
     }
 }
