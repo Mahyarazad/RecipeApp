@@ -142,11 +142,10 @@
 
         // Update the application state
 
-        var modifiedTarget = State.RecipeList.First(x => x.Id == recipeId);
-        State.RecipeList.Remove(modifiedTarget);
-        var tagList = modifiedTarget.TagList;        
-        modifiedTarget.TagList.Remove(tagList.First(x => x.TagId == Id));
-        State.RecipeList.Add(modifiedTarget);
+        var target = State.RecipeList
+            .First(x => x.Id == recipeId).TagList.FirstOrDefault(x=>x.TagId == Id);
+        State.RemoveTag("",target.TagId);
+       
        
     }
 
@@ -189,7 +188,7 @@
         var tag = Tags.FirstOrDefault(t => t == value);
         if (tag == null) return;
 
-        State.RemoveTag(value);
+        State.RemoveTag(value, Guid.Empty);
         Tags.Remove(tag);
         
         await InvokeAsync(StateHasChanged);

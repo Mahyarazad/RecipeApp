@@ -106,9 +106,7 @@
     private async Task DeleteRecipeCheck(Guid id, List<Guid> tagIdList )
     {
         if (await JsRuntime.InvokeAsync<bool>("DeleteTagPrompt", tagIdList))
-        {
             State.DeleteRecipe(id, tagIdList);
-            StateHasChanged();
-        }
+        StateHasChanged();
     }
 }

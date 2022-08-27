@@ -136,11 +136,16 @@ public class RecipeState
         _recipeData.DeleteRecipe(id, tagIdList!);
         var itemToRemove = RecipeList.FirstOrDefault(x => x.Id == id);
         if (itemToRemove != null) RecipeList.Remove(itemToRemove);
+        
     }
 
-    public void RemoveTag(string value)
+    public void RemoveTag(string value, Guid id)
     {
-        var target = NewRecipe.TagList!.FirstOrDefault(x => x.Tag == value);
+        var target = new Tags();
+        if(id==Guid.Empty)
+            target = NewRecipe.TagList!.FirstOrDefault(x => x.Tag == value);
+        if(value == "")
+            target = NewRecipe.TagList!.FirstOrDefault(x => x.TagId == id);
         NewRecipe.TagList!.Remove(target!);
     }
 }

@@ -32,7 +32,12 @@
                     }
                 }
             }
-            
+            @if (Recipe.TagList.FirstOrDefault() == null)
+            {
+                <div class="border px-1 tag-font rounded-3 text-black">
+                    Daily Recipe
+                </div>
+            }
         </div>
     </div>
 </a>

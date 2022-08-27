@@ -6,10 +6,20 @@ window.keypress = {
             
             function (e) {
                 $("textarea").each(function () {
-                    this.setAttribute("style", "height:" + (this.scrollHeight) + "px;overflow-y:hidden;");
+                    if (this.scrollHeight > 300) {
+                        this.setAttribute("style", "height:" + 300 + "px;overflow-y:scroll;");
+                    } else {
+                        this.setAttribute("style", "height:" + (this.scrollHeight) + "px;overflow-y:hidden;");
+                    }
+                    
                 }).on("input", function () {
-                    this.style.height = "auto";
-                    this.style.height = (this.scrollHeight) + "px";
+                    if (this.scrollHeight > 300) {
+                        this.style.height = "auto";
+                        this.style.height = 300 + "px";
+                    } else {
+                        this.style.height = "auto";
+                        this.style.height = (this.scrollHeight) + "px";
+                    }
                 });
                 if (e.key === 'Escape') {
                     dotnetHelper.invokeMethodAsync("CloseModal");
@@ -23,10 +33,20 @@ window.keypress = {
 
 function AutoHeight() {
     $("textarea").each(function () {
-        this.setAttribute("style", "height:" + (this.scrollHeight) + "px;overflow-y:hidden;");
+        if (this.scrollHeight > 300) {
+            this.setAttribute("style", "height:" + 300 + "px;overflow-y:scroll;");
+        } else {
+            this.setAttribute("style", "height:" + (this.scrollHeight) + "px;overflow-y:hidden;");
+        }
+
     }).on("input", function () {
-        this.style.height = "auto";
-        this.style.height = (this.scrollHeight) + "px";
+        if (this.scrollHeight > 300) {
+            this.style.height = "auto";
+            this.style.height = 300 + "px";
+        } else {
+            this.style.height = "auto";
+            this.style.height = (this.scrollHeight) + "px";
+        }
     });
 }
 
